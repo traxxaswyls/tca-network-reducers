@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TCA
+import ComposableArchitecture
 
 // MARK: - ReloadableAction
 
@@ -25,7 +25,7 @@ public enum ReloadableAction<Data: Equatable & Codable, ErrorType: Error & Equat
     // MARK: - Cases
 
     /// An action that calls when target response has been received from cache closure
-    case cacheResponse(Result<Data, ErrorType>)
+    case cacheResponse(Result<Data?, ErrorType>)
 
     /// An action that calls when target response has been received from loader closure
     case response(Result<Data, ErrorType>)

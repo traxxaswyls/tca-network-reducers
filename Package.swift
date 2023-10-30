@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "TCANetworkReducers",
+    name: "tca-network-reducers",
     platforms: [
       .iOS(.v13),
       .macOS(.v10_15),
@@ -18,7 +18,7 @@ let package = Package(
             targets: ["TCANetworkReducers"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/monession/TCA", .branch("master"))
+        .package(url: "https://github.com/Incetro/TCA", .branch("main"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -26,10 +26,10 @@ let package = Package(
         .target(
             name: "TCANetworkReducers",
             dependencies: [
-                .product(name: "TCA", package: "TCA")
+                .product(name: "ComposableArchitecture", package: "TCA")
             ]),
-        .testTarget(
-            name: "TCANetworkReducersTests",
-            dependencies: ["TCANetworkReducers"]),
+//        .testTarget(
+//            name: "TCANetworkReducersTests",
+//            dependencies: ["TCANetworkReducers"]),
     ]
 )

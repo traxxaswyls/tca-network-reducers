@@ -5,7 +5,7 @@
 //  Created by Gleb Kovalenko on 13.03.2023.
 //
 
-import TCA
+import ComposableArchitecture
 import SwiftUI
 
 // MARK: - IDReloadableView
@@ -59,7 +59,7 @@ public struct IDReloadableView<
     // MARK: - View
 
     public var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack(alignment: .center) {
                 content
                 if viewStore.reloadable.isLoaderDisplayed {

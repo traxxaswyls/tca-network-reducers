@@ -6,7 +6,7 @@
 //  Copyright © 2022 Incetro Inc. All rights reserved.
 //
 
-import TCA
+import ComposableArchitecture
 import SwiftUI
 
 // MARK: - PaginationView
@@ -21,24 +21,24 @@ public struct PaginationView<
     ErrorType: Error & Equatable,
     Loader: View
 >: View {
-
+    
     // MARK: - Aliases
-
+    
     /// Favorite module Store alias
     public typealias PaginationStore = Store<PaginationState<Element>, PaginationAction<Element, ErrorType>>
-
+    
     // MARK: - Properties
-
+    
     /// `Pagination` module `Store` instance
     private let store: PaginationStore
-
+    
     /// Target content that shoud used as loader
     public var loader: () -> Loader
-
+    
     public let isLoadingButton: Bool
-
+    
     // MARK: - Initializers
-
+    
     /// Default initializer
     /// - Parameters:
     ///   - store: FavoriteStore instance
@@ -54,9 +54,9 @@ public struct PaginationView<
         self.loader = loader
     }
     // MARK: - View
-
+    
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             if !viewStore.reachedLastPage {
                 if isLoadingButton && !viewStore.isNeededAutomaticButtonLoading {
                     Button {

@@ -5,7 +5,7 @@
 //  Created by Dmitry Savinov on 07.03.2023.
 //
 
-import TCA
+import ComposableArchitecture
 import Foundation
 
 // MARK: - DependencyValues

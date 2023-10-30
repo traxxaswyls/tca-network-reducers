@@ -6,7 +6,7 @@
 //  Copyright © 2022 Incetro Inc. All rights reserved.
 //
 
-import TCA
+import ComposableArchitecture
 import SwiftUI
 
 // MARK: - ReloadableView
@@ -59,7 +59,7 @@ public struct ReloadableView<
     // MARK: - View
 
     public var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack(alignment: .center) {
                 content
                 if viewStore.isLoaderDisplayed {

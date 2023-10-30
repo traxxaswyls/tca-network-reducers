@@ -5,13 +5,13 @@
 //  Created by Dmitry Savinov on 07.03.2023.
 //
 
-import TCA
+import ComposableArchitecture
 import Foundation
 import Combine
 
 // MARK: - Relodable
 
-public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Codable, ErrorType: Error & Equatable>: ReducerProtocol {
+public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Properties
     
@@ -34,22 +34,22 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
         self.cache = cache
     }
     
-    // MARK: - ReducerProtocol
+    // MARK: - Reducer
     
     public func reduce(
        into state: inout IDReloadableState<Data, ID, ErrorType>, action: ReloadableAction<Data, ErrorType>
-    ) -> EffectTask<ReloadableAction<Data, ErrorType>> {
+    ) -> Effect<ReloadableAction<Data, ErrorType>> {
         switch action {
         case .load:
             state.status = .loading
-            var actions: [Effect<ReloadableAction<Data, ErrorType>, Never>] = []
+            var actions: [Effect<ReloadableAction<Data, ErrorType>>] = []
             if let obtainCache = cache {
                 actions.append(obtainCache(state.id)
                     .compactMap { $0 }
                     .catchToEffect(ReloadableAction<Data, ErrorType>.cacheResponse)
                 )
             }
-            actions.append(.value(.loadingInProgress(true)))
+            actions.append(.send(.loadingInProgress(true)))
             actions.append(
                 obtain(state.id)
                     .catchToEffect(ReloadableAction<Data, ErrorType>.response)
@@ -64,21 +64,21 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
         case .reload:
             state.status = .reloading
             return .merge(
-                .value(.loadingInProgress(true)),
+                .send(.loadingInProgress(true)),
                 obtain(state.id)
                     .catchToEffect(ReloadableAction<Data, ErrorType>.response)
             )
         case .response(.success(let data)):
             state.status = .loaded
             state.data = data
-            return .value(.loadingInProgress(false))
+            return .send(.loadingInProgress(false))
         case .response(.failure(let error)):
             switch state.alertMode {
             case .onFailure(shoudDisplayOnReload: true),
                     .onFailure(shoudDisplayOnReload: false) where state.status != .reloading:
                 state.alert = .init(
-                    title: error.localizedDescription,
-                    dismissButton: .default("Ok")
+                    title: TextState(error.localizedDescription),
+                    dismissButton: .default(TextState("Ok"))
                 )
             default:
                 state.alert = nil
@@ -87,14 +87,14 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
             case .none:
                 state.status = .failure
             case .immediate:
-                return .value(.reload)
+                return .send(.reload)
             case .defered(interval: let interval, attempts: let attempts):
                 state.reloadingAttemptsCount += 1
                 guard state.reloadingAttemptsCount < attempts else {
                     state.status = .failure
                     return .none
                 }
-                return .value(.reload)
+                return .send(.reload)
                     .deferred(
                         for: DispatchQueue.SchedulerTimeType.Stride(floatLiteral: interval),
                         scheduler: mainQueue

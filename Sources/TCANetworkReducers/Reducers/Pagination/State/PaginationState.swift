@@ -6,7 +6,7 @@
 //  Copyright © 2022 Incetro Inc. All rights reserved.
 //
 
-import TCA
+import ComposableArchitecture
 import Foundation
 
 // MARK: - PaginationState

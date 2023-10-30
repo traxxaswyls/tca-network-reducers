@@ -5,13 +5,13 @@
 //  Created by Dmitry Savinov on 07.03.2023.
 //
 
-import TCA
+import ComposableArchitecture
 import Foundation
 import Combine
 
 // MARK: - IDPaginationReducer
 
-public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable, ID: Equatable & Codable>: ReducerProtocol {
+public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable, ID: Equatable & Codable>: Reducer {
     
     // MARK: - Properties
     
@@ -29,11 +29,11 @@ public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error
         self.fetchHandler = fetchHandler
     }
     
-    // MARK: - ReducerProtocol
+    // MARK: - Reducer
     
     public func reduce(
        into state: inout IDPaginationState<Element, ID>, action: PaginationAction<Element, ErrorType>
-    ) -> EffectTask<PaginationAction<Element, ErrorType>> {
+    ) -> Effect<PaginationAction<Element, ErrorType>> {
         switch action {
         case .reset:
             state.total = 0
@@ -50,7 +50,7 @@ public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error
             state.page += 1
             state.requestStatus = .done
             if state.results.count >= state.total {
-                return .value(.allElementsFetched)
+                return .send(.allElementsFetched)
             }
         case .response(.failure):
             state.requestStatus = .failed

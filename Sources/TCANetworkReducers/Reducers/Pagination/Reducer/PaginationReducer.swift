@@ -6,13 +6,13 @@
 //  Copyright © 2022 Incetro Inc. All rights reserved.
 //
 
-import TCA
+import ComposableArchitecture
 import Foundation
 import Combine
 
 // MARK: - PaginationReducer
 
-public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable>: ReducerProtocol {
+public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Properties
     
@@ -30,11 +30,11 @@ public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error &
         self.fetchHandler = fetchHandler
     }
     
-    // MARK: - ReducerProtocol
+    // MARK: - Reducer
     
     public func reduce(
        into state: inout PaginationState<Element>, action: PaginationAction<Element, ErrorType>
-    ) -> EffectTask<PaginationAction<Element, ErrorType>> {
+    ) -> Effect<PaginationAction<Element, ErrorType>> {
         switch action {
         case .reset:
             state.total = 0
@@ -52,7 +52,7 @@ public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error &
             state.page += 1
             state.requestStatus = .done
             if state.results.count >= state.total {
-                return .value(.allElementsFetched)
+                return .send(.allElementsFetched)
             }
         case .response(.failure):
             state.requestStatus = .failed
