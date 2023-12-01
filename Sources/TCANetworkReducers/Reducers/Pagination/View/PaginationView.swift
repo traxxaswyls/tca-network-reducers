@@ -17,7 +17,7 @@ import SwiftUI
 /// all changes to the state and re-render, and we can send all user actions
 /// to the store so that state changes.
 public struct PaginationView<
-    Element: Equatable & Codable,
+    Element: Equatable,
     ErrorType: Error & Equatable,
     Loader: View
 >: View {

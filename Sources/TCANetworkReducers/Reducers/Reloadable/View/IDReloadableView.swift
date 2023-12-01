@@ -16,8 +16,8 @@ import SwiftUI
 /// all changes to the state and re-render, and we can send all user actions
 /// to the store so that state changes.
 public struct IDReloadableView<
-    Data: Equatable & Codable,
-    ID: Equatable & Codable,
+    Data: Equatable,
+    ID: Equatable,
     ErrorType: Error & Equatable,
     Content: View,
     Loader: View

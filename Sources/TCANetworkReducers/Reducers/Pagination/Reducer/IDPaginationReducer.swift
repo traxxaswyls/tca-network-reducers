@@ -11,7 +11,7 @@ import Combine
 
 // MARK: - IDPaginationReducer
 
-public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable, ID: Equatable & Codable>: Reducer {
+public struct IDPaginationReducer<Element: Equatable, ErrorType: Error & Equatable, ID: Equatable>: Reducer {
     
     // MARK: - Properties
     

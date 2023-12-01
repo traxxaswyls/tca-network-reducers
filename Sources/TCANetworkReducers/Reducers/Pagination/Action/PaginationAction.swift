@@ -19,7 +19,7 @@ import Foundation
 /// such as tapping some button, holding another button, or changing a slider value.
 /// But there are also some slightly non-obvious ones, such as the action of the user dismissing the alert,
 /// and the action that occurs when we receive a response from the fact API request.
-public enum PaginationAction<Element: Equatable & Codable, ErrorType: Error & Equatable>: Equatable {
+public enum PaginationAction<Element: Equatable, ErrorType: Error & Equatable>: Equatable {
 
     // MARK: - Cases
 

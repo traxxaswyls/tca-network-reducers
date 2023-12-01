@@ -10,4 +10,4 @@ import Foundation
 
 // MARK: - Aliases
 
-public typealias Paginated<T: Decodable & Equatable> = PaginatedResponsePlainObject<T>
+public typealias Paginated<T: Equatable> = PaginatedResponsePlainObject<T>

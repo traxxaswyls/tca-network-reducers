@@ -16,7 +16,7 @@ import Foundation
 /// Basically, `ReloadableState` is a type that describes the data
 /// `Reloadable` feature needs to perform its logic and render its UI.
 @dynamicMemberLookup
-public struct ReloadableState<Data: Equatable & Codable, ErrorType: Error & Equatable>: Equatable {
+public struct ReloadableState<Data: Equatable, ErrorType: Error & Equatable>: Equatable {
     
     // MARK: - Status
 

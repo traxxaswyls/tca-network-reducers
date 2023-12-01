@@ -12,7 +12,7 @@ import Combine
 
 // MARK: - Relodable
 
-public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
+public struct RelodableReducer<Data: Equatable, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Properties
     

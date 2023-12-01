@@ -12,7 +12,7 @@ import Combine
 
 // MARK: - PaginationReducer
 
-public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
+public struct PaginationReducer<Element: Equatable, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Properties
     

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ObjectMapper
 
 // MARK: - PaginationMetadataPlainObject
 
@@ -41,5 +42,16 @@ extension PaginationMetadataPlainObject {
         self.pageCount = pageCount
         self.perPage = perPage
         self.totalCount = totalObjectCount
+    }
+}
+
+// MARK: - Mappable
+
+extension PaginationMetadataPlainObject: ImmutableMappable {
+    public init(map: Map) throws {
+        totalCount = try map.value("totalCount")
+        pageCount = try map.value("pageCount")
+        currentPage = try map.value("currentPage")
+        perPage = try map.value("perPage")
     }
 }

@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import ObjectMapper
 
 // MARK: - PaginatedResponsePlainObject
 
-public struct PaginatedResponsePlainObject<Plain: Decodable & Equatable>: Equatable {
+public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable {
 
     // MARK: - CodingKeys
 
@@ -49,12 +50,28 @@ public struct PaginatedResponsePlainObject<Plain: Decodable & Equatable>: Equata
 
 // MARK: - Decodable
 
-extension PaginatedResponsePlainObject: Decodable {
+extension PaginatedResponsePlainObject: Decodable where Plain: Decodable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let arr = container.allKeys.compactMap { try? container.decode([Plain].self, forKey: $0) }
         array = arr.first ?? []
         pagination = try container.decode(PaginationMetadataPlainObject.self, forKey: .init(stringValue: "meta"))
+    }
+}
+
+// MARK: - Mappable
+
+extension PaginatedResponsePlainObject: BaseMappable where Plain: BaseMappable {
+    public mutating func mapping(map: Map) {
+        array >>> map["array"]
+        pagination >>> map["meta"]
+    }
+}
+
+extension PaginatedResponsePlainObject: ImmutableMappable where Plain: ImmutableMappable {
+    public init(map: Map) throws {
+        array = try map.value("array")
+        pagination = try map.value("meta")
     }
 }

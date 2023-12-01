@@ -16,12 +16,12 @@ import Foundation
 /// Basically, `PaginationState` is a type that describes the data
 /// `Pagination` feature needs to perform its logic and render its UI.
 @dynamicMemberLookup
-public struct PaginationState<Element>: Equatable, Codable where Element: Equatable & Codable {
+public struct PaginationState<Element>: Equatable where Element: Equatable {
 
     // MARK: - RequestStatus
 
     /// RequestStatus for Pagination
-    public enum RequestStatus: Equatable, Codable {
+    public enum RequestStatus: Equatable {
 
         /// No pages have been fetched.
         case none

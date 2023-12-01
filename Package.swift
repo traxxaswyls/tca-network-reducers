@@ -18,7 +18,8 @@ let package = Package(
             targets: ["TCANetworkReducers"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Incetro/TCA", .branch("main"))
+        .package(url: "https://github.com/Incetro/TCA", .branch("main")),
+        .package(url: "https://github.com/tristanhimmelman/ObjectMapper", from: "4.2.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -26,7 +27,8 @@ let package = Package(
         .target(
             name: "TCANetworkReducers",
             dependencies: [
-                .product(name: "ComposableArchitecture", package: "TCA")
+                .product(name: "ComposableArchitecture", package: "TCA"),
+                .product(name: "ObjectMapper", package: "ObjectMapper")
             ]),
 //        .testTarget(
 //            name: "TCANetworkReducersTests",

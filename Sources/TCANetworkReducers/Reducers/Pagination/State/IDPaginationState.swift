@@ -15,7 +15,7 @@ import Foundation
 /// Basically, `PaginationState` is a type that describes the data
 /// `Pagination` feature needs to perform its logic and render its UI.
 @dynamicMemberLookup
-public struct IDPaginationState<Element, ID>: Equatable, Codable where Element: Equatable & Codable, ID: Equatable & Codable {
+public struct IDPaginationState<Element, ID>: Equatable where Element: Equatable, ID: Equatable {
 
     // MARK: - Properties
 

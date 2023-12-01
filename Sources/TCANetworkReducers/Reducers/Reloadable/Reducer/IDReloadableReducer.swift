@@ -11,7 +11,7 @@ import Combine
 
 // MARK: - Relodable
 
-public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
+public struct IDRelodableReducer<Data: Equatable, ID: Equatable, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Properties
     
