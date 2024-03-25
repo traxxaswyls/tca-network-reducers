@@ -19,7 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Incetro/TCA", .branch("main")),
-        .package(url: "https://github.com/tristanhimmelman/ObjectMapper", from: "4.2.0")
+        .package(url: "https://github.com/tristanhimmelman/ObjectMapper", from: "4.3.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
