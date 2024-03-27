@@ -13,25 +13,45 @@ import Combine
 
 public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Codable, ErrorType: Error & Equatable>: Reducer {
     
+    // MARK: - Aliases
+    
+    public typealias PublisherObtain = (ID) -> AnyPublisher<Data, ErrorType>
+    public typealias AsyncObtain = (ID) async throws -> Data
+    
+    // MARK: - Operation
+    
+    public enum Operation {
+        case publisher(PublisherObtain)
+        case run(AsyncObtain)
+    }
+    
     // MARK: - Properties
     
     /// Main queue scheduler instance
     @Dependency(\.mainQueueScheduler) var mainQueue: AnySchedulerOf<DispatchQueue>
     
     /// Closure for loading target resource
-    public let obtain: (ID) -> AnyPublisher<Data, ErrorType>
-
+    public let obtain: Operation
+    
     /// Closure for cache obtating
-    public var cache: ((ID) -> AnyPublisher<Data?, ErrorType>)?
+    public var cache: Operation?
     
     // MARK: - Initializers
     
     public init(
-        obtain: @escaping (ID) -> AnyPublisher<Data, ErrorType>,
-        cache: ((ID) -> AnyPublisher<Data?, ErrorType>)? = nil
+        obtain: @escaping PublisherObtain,
+        cache: PublisherObtain? = nil
     ) {
-        self.obtain = obtain
-        self.cache = cache
+        self.obtain = .publisher(obtain)
+        self.cache = cache.map { .publisher($0) }
+    }
+    
+    public init(
+        obtain: @escaping AsyncObtain,
+        cache: AsyncObtain? = nil
+    ) {
+        self.obtain = .run(obtain)
+        self.cache = cache.map { .run($0) }
     }
     
     // MARK: - Reducer
@@ -43,17 +63,9 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
         case .load:
             state.status = .loading
             var actions: [Effect<ReloadableAction<Data, ErrorType>>] = []
-            if let obtainCache = cache {
-                actions.append(obtainCache(state.id)
-                    .compactMap { $0 }
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.cacheResponse)
-                )
-            }
+            actions.append(convertedCache(id: state.id))
             actions.append(.send(.loadingInProgress(true)))
-            actions.append(
-                obtain(state.id)
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.response)
-            )
+            actions.append(convertedObtain(id: state.id))
             return .merge(actions)
         case .cacheResponse(.success(let data)):
             if state.status == .loading {
@@ -65,8 +77,7 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
             state.status = .reloading
             return .merge(
                 .send(.loadingInProgress(true)),
-                obtain(state.id)
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.response)
+                convertedObtain(id: state.id)
             )
         case .response(.success(let data)):
             state.status = .loaded
@@ -104,5 +115,43 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
             return .none
         }
         return .none
+    }
+    
+    private func convertedObtain(id: ID) -> Effect<ReloadableAction<Data, ErrorType>> {
+        switch obtain {
+        case .publisher(let obtain):
+            return obtain(id).catchToEffect(ReloadableAction<Data, ErrorType>.response)
+        case .run(let act):
+            return .run { send in
+                do {
+                    let data = try await act(id)
+                    await send(.response(.success(data)))
+                } catch let error as ErrorType {
+                    await send(.response(.failure(error)))
+                } catch {
+                    assertionFailure("Unknown error type `\(type(of: error))`, expected `\(ErrorType.Type.self)`")
+                }
+            }
+        }
+    }
+    
+    private func convertedCache(id: ID) -> Effect<ReloadableAction<Data, ErrorType>> {
+        switch cache {
+        case .publisher(let obtain):
+            return obtain(id).catchToEffect(ReloadableAction<Data, ErrorType>.response)
+        case .run(let act):
+            return .run { send in
+                do {
+                    let data = try await act(id)
+                    await send(.response(.success(data)))
+                } catch let error as ErrorType {
+                    await send(.response(.failure(error)))
+                } catch {
+                    assertionFailure("Unknown error type `\(type(of: error))`, expected `\(ErrorType.Type.self)`")
+                }
+            }
+        default:
+            return .none
+        }
     }
 }
