@@ -61,7 +61,7 @@ public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error &
     ) -> Effect<PaginationAction<Element, ErrorType>> {
         switch action {
         case .reset:
-            state.total = 0
+            state.currentPagination = .new(pageSize: state.pageSize)
             state.page = 0
             state.requestStatus = .none
             state.results = []
@@ -86,7 +86,6 @@ public struct PaginationReducer<Element: Equatable & Codable, ErrorType: Error &
         case .response(.success(let paginatedElement)):
             state.isNeededAutomaticButtonLoading = false
             state.results.append(contentsOf: paginatedElement.array)
-            state.total = paginatedElement.pagination.totalCount
             state.page += 1
             state.requestStatus = .done
             if state.results.count >= state.total {

@@ -13,7 +13,8 @@ import Foundation
 public struct PaginationMetadataPlainObject: Equatable, Codable {
 
     // MARK: - Properties
-    
+
+    private let _nextCursor: String?
     private var _hasMore: Bool?
     
     /// True if pagination has more objects
@@ -53,16 +54,28 @@ extension PaginationMetadataPlainObject {
         self.pageCount = pageCount
         self.perPage = perPage
         self.totalCount = totalObjectCount
+        self._nextCursor = nil
     }
     
     public init(
         perPage: Int,
-        hasMore: Bool
+        hasMore: Bool,
+        _nextCursor: String? = nil
     ) {
         self.pageCount = -1
         self.totalCount = -1
         self.currentPage = -1
         self.perPage = perPage
         self._hasMore = hasMore
+        self._nextCursor = _nextCursor
+    }
+    
+    public static func new(pageSize: Int) -> PaginationMetadataPlainObject {
+        PaginationMetadataPlainObject(
+            totalObjectCount: 0,
+            pageCount: 0,
+            currentPage: 0,
+            perPage: pageSize
+        )
     }
 }

@@ -37,6 +37,8 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
     }
 
     // MARK: - Properties
+    
+    public var currentPagination: PaginationMetadataPlainObject
 
     /// Size of pages.
     public var pageSize: Int
@@ -45,7 +47,9 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
     public var page = 0
 
     /// Total number of results.
-    public var total = 0
+    public var total: Int {
+        currentPagination.totalCount
+    }
 
     /// The requestStatus defines the current state of the pagination.  If .None, no pages have fetched.
     /// If .InProgress, incoming `fetchNextPage()` calls are ignored.
@@ -56,8 +60,7 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
         if requestStatus == .none || requestStatus == .inProgress && total == 0 {
             return false
         }
-        let totalPages = ceil(Double(total) / Double(pageSize))
-        return page >= Int(totalPages)
+        return !currentPagination.hasMore
     }
 
     /// All results in the order they were received.
@@ -69,6 +72,12 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
     
     public init(pageSize: Int) {
         self.pageSize = pageSize
+        self.currentPagination = PaginationMetadataPlainObject(
+            totalObjectCount: 0,
+            pageCount: 0,
+            currentPage: 0,
+            perPage: pageSize
+        )
     }
 
     // MARK: - DynamicMemberLookup
