@@ -14,7 +14,7 @@ public struct PaginationMetadataPlainObject: Equatable, Codable {
 
     // MARK: - Properties
 
-    private let _nextCursor: String?
+    public let _nextCursor: String?
     private var _hasMore: Bool?
     
     /// True if pagination has more objects
