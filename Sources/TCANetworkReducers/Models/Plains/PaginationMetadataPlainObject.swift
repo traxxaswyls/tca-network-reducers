@@ -13,6 +13,18 @@ import Foundation
 public struct PaginationMetadataPlainObject: Equatable, Codable {
 
     // MARK: - Properties
+    
+    private var _hasMore: Bool?
+    
+    /// True if pagination has more objects
+    public var hasMore: Bool {
+        if let _hasMore {
+            return _hasMore
+        } else {
+            let totalPages = ceil(Double(totalCount) / Double(perPage))
+            return currentPage < Int(totalPages)
+        }
+    }
 
     /// Total object count
     public let totalCount: Int
@@ -41,5 +53,16 @@ extension PaginationMetadataPlainObject {
         self.pageCount = pageCount
         self.perPage = perPage
         self.totalCount = totalObjectCount
+    }
+    
+    public init(
+        perPage: Int,
+        hasMore: Bool
+    ) {
+        self.pageCount = -1
+        self.totalCount = -1
+        self.currentPage = -1
+        self.perPage = perPage
+        self._hasMore = hasMore
     }
 }
