@@ -55,6 +55,28 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
         self.cache = cache.map { .run($0) }
     }
     
+    // MARK: - Static
+    
+    public static func publisher(
+        obtain: @escaping PublisherObtain,
+        cache: PublisherObtain? = nil
+    ) -> Self {
+        RelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+    
+    public static func run(
+        obtain: @escaping AsyncObtain,
+        cache: AsyncObtain? = nil
+    ) -> Self {
+        RelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+    
     // MARK: - ReducerProtocol
     
     public func reduce(
