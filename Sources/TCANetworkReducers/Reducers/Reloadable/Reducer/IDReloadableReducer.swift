@@ -54,6 +54,28 @@ public struct IDRelodableReducer<Data: Equatable & Codable, ID: Equatable & Coda
         self.cache = cache.map { .run($0) }
     }
     
+    // MARK: - Static
+    
+    public static func publisher(
+        obtain: @escaping PublisherObtain,
+        cache: PublisherObtain? = nil
+    ) -> Self {
+        IDRelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+
+    public static func run(
+        obtain: @escaping AsyncObtain,
+        cache: AsyncObtain? = nil
+    ) -> Self {
+        IDRelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+    
     // MARK: - Reducer
     
     public func reduce(
