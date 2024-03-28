@@ -42,15 +42,18 @@ public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable {
     // MARK: - Properties
 
     /// Pagination info object
-    public private(set) var pagination: PaginationMetadataPlainObject
+    public let pagination: PaginationMetadataPlainObject
 
     /// Array of paginated entities
-    public private(set) var array: [Plain]
+    public let array: [Plain]
 }
 
 // MARK: - Decodable
 
-extension PaginatedResponsePlainObject: Decodable where Plain: Decodable {
+extension PaginatedResponsePlainObject: PaginatedResponse where Plain: Decodable {
+}
+
+extension PaginatedResponsePlainObject: Decodable, DefaultPaginatedResponse where Plain: Decodable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

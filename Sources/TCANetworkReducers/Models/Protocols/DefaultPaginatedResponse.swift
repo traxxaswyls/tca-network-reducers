@@ -14,5 +14,5 @@ public protocol DefaultPaginatedResponse: PaginatedResponse {
     // MARK: - Properties
     
     var pagination: PaginationMetadataPlainObject { get }
-    var results: [Element] { get }
+    var array: [Element] { get }
 }

@@ -47,7 +47,7 @@ public struct PaginationReducer<Response: DefaultPaginatedResponse, ErrorType: E
                 .catchToEffect(PaginationAction<Response, ErrorType>.response)
         case .response(.success(let paginatedElement)):
             state.isNeededAutomaticButtonLoading = false
-            state.results.append(contentsOf: paginatedElement.results)
+            state.results.append(contentsOf: paginatedElement.array)
             state.total = paginatedElement.pagination.totalCount
             state.page += 1
             state.requestStatus = .done

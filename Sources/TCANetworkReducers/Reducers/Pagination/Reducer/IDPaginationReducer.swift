@@ -45,7 +45,7 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
             return fetchHandler(state.id, state.page + 1, state.pageSize)
                 .catchToEffect(PaginationAction<Response, ErrorType>.response)
         case .response(.success(let paginatedElement)):
-            state.results.append(contentsOf: paginatedElement.results)
+            state.results.append(contentsOf: paginatedElement.array)
             state.total = paginatedElement.pagination.totalCount
             state.page += 1
             state.requestStatus = .done

@@ -21,5 +21,5 @@ public protocol PaginatedResponse: Equatable, Decodable {
     // MARK: - Properties
     
     var pagination: Metadata { get }
-    var results: [Element] { get }
+    var array: [Element] { get }
 }
