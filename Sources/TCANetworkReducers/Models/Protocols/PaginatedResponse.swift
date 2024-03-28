@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - PaginatedResponse
 
-public protocol PaginatedResponse: Equatable, Decodable {
+public protocol PaginatedResponse: Equatable {
     
     // MARK: - AssociatedTypes
     

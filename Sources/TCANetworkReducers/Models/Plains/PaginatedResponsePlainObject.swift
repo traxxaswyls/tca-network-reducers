@@ -11,7 +11,7 @@ import ObjectMapper
 
 // MARK: - PaginatedResponsePlainObject
 
-public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable {
+public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable, DefaultPaginatedResponse {
 
     // MARK: - CodingKeys
 
@@ -50,10 +50,7 @@ public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable {
 
 // MARK: - Decodable
 
-extension PaginatedResponsePlainObject: PaginatedResponse where Plain: Decodable {
-}
-
-extension PaginatedResponsePlainObject: Decodable, DefaultPaginatedResponse where Plain: Decodable {
+extension PaginatedResponsePlainObject: Decodable where Plain: Decodable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
