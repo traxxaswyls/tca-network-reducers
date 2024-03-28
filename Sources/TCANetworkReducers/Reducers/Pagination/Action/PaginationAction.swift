@@ -8,6 +8,11 @@
 
 import Foundation
 
+// MARK: - Aliases
+
+/// Need to save backward compatibility. Just rename `PaginationAction` to `ElementPaginationAction`
+public typealias ElementPaginationAction<Element: Equatable, ErrorType: Error & Equatable> = PaginationAction<Paginated<Element>, ErrorType>
+
 // MARK: - PaginationAction
 
 /// All available `Pagination` module actions.
