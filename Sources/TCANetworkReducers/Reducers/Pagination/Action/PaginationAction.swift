@@ -19,12 +19,12 @@ import Foundation
 /// such as tapping some button, holding another button, or changing a slider value.
 /// But there are also some slightly non-obvious ones, such as the action of the user dismissing the alert,
 /// and the action that occurs when we receive a response from the fact API request.
-public enum PaginationAction<Element: Equatable, ErrorType: Error & Equatable>: Equatable {
+public enum PaginationAction<Response: PaginatedResponse, ErrorType: Error & Equatable>: Equatable {
 
     // MARK: - Cases
 
     /// An action that calls when target response has been received.
-    case response(Result<Paginated<Element>, ErrorType>)
+    case response(Result<Response, ErrorType>)
 
     /// The action is called after the pagination fetches all objects from all pages.
     /// Here you can add functionality to handle data after all the objects have been received.

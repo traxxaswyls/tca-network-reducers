@@ -16,29 +16,25 @@ import SwiftUI
 /// It holds onto a `Store<PaginationState, PaginationAction>` so that it can observe
 /// all changes to the state and re-render, and we can send all user actions
 /// to the store so that state changes.
-public struct PaginationView<
-    Element: Equatable,
-    ErrorType: Error & Equatable,
-    Loader: View
->: View {
-    
+public struct PaginationView<Response: PaginatedResponse, ErrorType: Error & Equatable, Loader: View>: View {
+
     // MARK: - Aliases
-    
+
     /// Favorite module Store alias
-    public typealias PaginationStore = Store<PaginationState<Element>, PaginationAction<Element, ErrorType>>
-    
+    public typealias PaginationStore = Store<PaginationState<Response.Element>, PaginationAction<Response, ErrorType>>
+
     // MARK: - Properties
-    
+
     /// `Pagination` module `Store` instance
     private let store: PaginationStore
-    
+
     /// Target content that shoud used as loader
     public var loader: () -> Loader
-    
+
     public let isLoadingButton: Bool
-    
+
     // MARK: - Initializers
-    
+
     /// Default initializer
     /// - Parameters:
     ///   - store: FavoriteStore instance
@@ -54,9 +50,9 @@ public struct PaginationView<
         self.loader = loader
     }
     // MARK: - View
-    
+
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        WithViewStore(store) { viewStore in
             if !viewStore.reachedLastPage {
                 if isLoadingButton && !viewStore.isNeededAutomaticButtonLoading {
                     Button {

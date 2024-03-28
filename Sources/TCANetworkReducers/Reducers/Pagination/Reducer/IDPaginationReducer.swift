@@ -11,7 +11,7 @@ import Combine
 
 // MARK: - IDPaginationReducer
 
-public struct IDPaginationReducer<Element: Equatable, ErrorType: Error & Equatable, ID: Equatable>: Reducer {
+public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType: Error & Equatable, ID: Equatable>: Reducer {
     
     // MARK: - Properties
     
@@ -19,12 +19,12 @@ public struct IDPaginationReducer<Element: Equatable, ErrorType: Error & Equatab
     @Dependency(\.mainQueueScheduler) var mainQueue: AnySchedulerOf<DispatchQueue>
     
     /// The fetchHandler is defined by the user, it defines the behaviour for how to fetch a given page.
-    public let fetchHandler: (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Paginated<Element>, ErrorType>
+    public let fetchHandler: (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Response, ErrorType>
     
     // MARK: - Initializers
     
     public init(
-        fetchHandler: @escaping (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Paginated<Element>, ErrorType>
+        fetchHandler: @escaping (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Response, ErrorType>
     ) {
         self.fetchHandler = fetchHandler
     }
@@ -32,8 +32,8 @@ public struct IDPaginationReducer<Element: Equatable, ErrorType: Error & Equatab
     // MARK: - Reducer
     
     public func reduce(
-       into state: inout IDPaginationState<Element, ID>, action: PaginationAction<Element, ErrorType>
-    ) -> Effect<PaginationAction<Element, ErrorType>> {
+        into state: inout IDPaginationState<Response.Element, ID>, action: PaginationAction<Response, ErrorType>
+    ) -> Effect<PaginationAction<Response, ErrorType>> {
         switch action {
         case .reset:
             state.total = 0
@@ -43,9 +43,9 @@ public struct IDPaginationReducer<Element: Equatable, ErrorType: Error & Equatab
         case .paginate where !state.pagination.reachedLastPage:
             state.requestStatus = .inProgress
             return fetchHandler(state.id, state.page + 1, state.pageSize)
-                .catchToEffect(PaginationAction<Element, ErrorType>.response)
+                .catchToEffect(PaginationAction<Response, ErrorType>.response)
         case .response(.success(let paginatedElement)):
-            state.results.append(contentsOf: paginatedElement.array)
+            state.results.append(contentsOf: paginatedElement.results)
             state.total = paginatedElement.pagination.totalCount
             state.page += 1
             state.requestStatus = .done
