@@ -43,8 +43,6 @@ public struct ReloadableState<Data: Equatable & Codable, ErrorType: Error & Equa
         case defered(interval: TimeInterval = 2, attempts: Int = 3)
     }
 
-    // MARK: - Properties
-
     /// Current loading status
     public var status: Status = .initial
 

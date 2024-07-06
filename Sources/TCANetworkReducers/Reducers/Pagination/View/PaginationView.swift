@@ -70,7 +70,18 @@ public struct PaginationView<
                         }
                     }
                 } else {
-                    loader().onAppear { viewStore.send(.paginate) }
+                    switch viewStore.initialPaginationPolicy {
+                    case .onAppear:
+                        loader()
+                            .onAppear {
+                                viewStore.send(.paginate)
+                            }
+                    case .onDidLoad:
+                        loader()
+                            .onViewDidLoad {
+                                viewStore.send(.paginate)
+                            }
+                    }
                 }
             }
         }

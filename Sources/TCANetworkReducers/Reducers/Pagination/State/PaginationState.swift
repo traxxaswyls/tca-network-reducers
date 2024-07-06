@@ -18,6 +18,14 @@ import Foundation
 @dynamicMemberLookup
 public struct PaginationState<Element>: Equatable, Codable where Element: Equatable & Codable {
 
+    // MARK: - InitialPaginationPolicy
+    
+    public enum InitialPaginationPolicy: Equatable, Codable {
+        
+        case onAppear
+        case onDidLoad
+    }
+
     // MARK: - RequestStatus
 
     /// RequestStatus for Pagination
@@ -38,6 +46,7 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
 
     // MARK: - Properties
     
+    public var initialPaginationPolicy: InitialPaginationPolicy = .onAppear
     public var currentPagination: PaginationMetadataPlainObject
 
     /// Size of pages.
@@ -70,7 +79,11 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
     
     // MARK: - Initializers
     
-    public init(pageSize: Int) {
+    public init(
+        pageSize: Int,
+        initialPaginationPolicy: InitialPaginationPolicy = .onAppear
+    ) {
+        self.initialPaginationPolicy = initialPaginationPolicy
         self.pageSize = pageSize
         self.currentPagination = PaginationMetadataPlainObject(
             totalObjectCount: 0,

@@ -71,7 +71,10 @@ public struct IDPaginationView<
                         }
                     }
                 } else {
-                    loader().onAppear { viewStore.send(.paginate) }
+                    loader()
+                        .onViewDidLoad {
+                            viewStore.send(.paginate)
+                        }
                 }
             }
         }
