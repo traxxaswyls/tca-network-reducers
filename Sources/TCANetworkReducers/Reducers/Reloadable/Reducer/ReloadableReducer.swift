@@ -16,14 +16,14 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
     
     // MARK: - Aliases
     
-    public typealias PublisherObtain = () -> AnyPublisher<Data, ErrorType>
-    public typealias AsyncObtain = () async throws -> Data
+    public typealias PublisherObtain<D> = () -> AnyPublisher<D, ErrorType>
+    public typealias AsyncObtain<D> = () async throws -> D
     
     // MARK: - Operation
     
-    public enum Operation {
-        case publisher(PublisherObtain)
-        case run(AsyncObtain)
+    public enum Operation<D> {
+        case publisher(PublisherObtain<D>)
+        case run(AsyncObtain<D>)
     }
     
     // MARK: - Properties
@@ -32,24 +32,24 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
     @Dependency(\.mainQueueScheduler) var mainQueue: AnySchedulerOf<DispatchQueue>
     
     /// Closure for loading target resource
-    public let obtain: Operation
+    public let obtain: Operation<Data>
     
     /// Closure for cache obtating
-    public let cache: Operation?
+    public let cache: Operation<Data?>?
     
     // MARK: - Initializers
     
     public init(
-        obtain: @escaping PublisherObtain,
-        cache: PublisherObtain? = nil
+        obtain: @escaping PublisherObtain<Data>,
+        cache: PublisherObtain<Data?>? = nil
     ) {
         self.obtain = .publisher(obtain)
         self.cache = cache.map { .publisher($0) }
     }
     
     public init(
-        obtain: @escaping AsyncObtain,
-        cache: AsyncObtain? = nil
+        obtain: @escaping AsyncObtain<Data>,
+        cache: AsyncObtain<Data?>? = nil
     ) {
         self.obtain = .run(obtain)
         self.cache = cache.map { .run($0) }
@@ -58,8 +58,8 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
     // MARK: - Static
     
     public static func publisher(
-        obtain: @escaping PublisherObtain,
-        cache: PublisherObtain? = nil
+        obtain: @escaping PublisherObtain<Data>,
+        cache: PublisherObtain<Data?>? = nil
     ) -> Self {
         RelodableReducer(
             obtain: obtain,
@@ -68,8 +68,8 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
     }
     
     public static func run(
-        obtain: @escaping AsyncObtain,
-        cache: AsyncObtain? = nil
+        obtain: @escaping AsyncObtain<Data>,
+        cache: AsyncObtain<Data?>? = nil
     ) -> Self {
         RelodableReducer(
             obtain: obtain,
@@ -97,9 +97,7 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
                 convertedObtain()
             )
         case .cacheResponse(.success(let data)):
-            if state.status == .loading {
-                state.data = data
-            }
+            state.data = data
         case .alertDismissed:
             state.alert = nil
         case .response(.success(let data)):
@@ -162,14 +160,14 @@ public struct RelodableReducer<Data: Equatable & Codable, ErrorType: Error & Equ
     private func convertedCache() -> Effect<ReloadableAction<Data, ErrorType>> {
         switch cache {
         case .publisher(let obtain):
-            return obtain().catchToEffect(ReloadableAction<Data, ErrorType>.response)
+            return obtain().catchToEffect(ReloadableAction<Data, ErrorType>.cacheResponse)
         case .run(let act):
             return .run { send in
                 do {
                     let data = try await act()
-                    await send(.response(.success(data)))
+                    await send(.cacheResponse(.success(data)))
                 } catch let error as ErrorType {
-                    await send(.response(.failure(error)))
+                    await send(.cacheResponse(.failure(error)))
                 } catch {
                     assertionFailure("Unknown error type `\(type(of: error))`, expected `\(ErrorType.Type.self)`")
                 }
