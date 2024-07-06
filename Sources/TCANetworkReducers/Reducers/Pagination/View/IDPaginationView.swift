@@ -70,10 +70,10 @@ public struct IDPaginationView<
                             viewStore.send(.paginate)
                         }
                     }
-                } else {
+                } else if viewStore.isNeededAutomaticPaginationOnAppear {
                     loader()
-                        .onViewDidLoad {
-                            viewStore.send(.paginate)
+                        .onAppear {
+                            viewStore.send(.onAppear)
                         }
                 }
             }

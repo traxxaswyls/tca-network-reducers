@@ -59,6 +59,11 @@ public struct IDPaginationReducer<Element: Equatable & Codable, ErrorType: Error
        into state: inout IDPaginationState<Element, ID>, action: PaginationAction<Element, ErrorType>
     ) -> Effect<PaginationAction<Element, ErrorType>> {
         switch action {
+        case .onAppear:
+            if (state.initialPaginationPolicy == .onDidLoad && !state.isInitialized) || state.initialPaginationPolicy == .onAppear {
+                return .send(.paginate)
+            }
+            state.isInitialized = true
         case .reset:
             state.currentPagination = .new(pageSize: state.pageSize)
             state.page = 0

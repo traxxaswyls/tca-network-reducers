@@ -46,6 +46,7 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
 
     // MARK: - Properties
     
+    public var isInitialized = false
     public var initialPaginationPolicy: InitialPaginationPolicy = .onAppear
     public var currentPagination: PaginationMetadataPlainObject
 
@@ -76,15 +77,18 @@ public struct PaginationState<Element>: Equatable, Codable where Element: Equata
     public var results: [Element] = []
 
     public var isNeededAutomaticButtonLoading = true
+    public var isNeededAutomaticPaginationOnAppear = true
     
     // MARK: - Initializers
     
     public init(
         pageSize: Int,
-        initialPaginationPolicy: InitialPaginationPolicy = .onAppear
+        initialPaginationPolicy: InitialPaginationPolicy = .onAppear,
+        isNeededAutomaticPaginationOnAppear: Bool = true
     ) {
         self.initialPaginationPolicy = initialPaginationPolicy
         self.pageSize = pageSize
+        self.isNeededAutomaticPaginationOnAppear = isNeededAutomaticPaginationOnAppear
         self.currentPagination = PaginationMetadataPlainObject(
             totalObjectCount: 0,
             pageCount: 0,

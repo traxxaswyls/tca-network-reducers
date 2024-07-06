@@ -69,19 +69,11 @@ public struct PaginationView<
                             viewStore.send(.paginate)
                         }
                     }
-                } else {
-                    switch viewStore.initialPaginationPolicy {
-                    case .onAppear:
-                        loader()
-                            .onAppear {
-                                viewStore.send(.paginate)
-                            }
-                    case .onDidLoad:
-                        loader()
-                            .onViewDidLoad {
-                                viewStore.send(.paginate)
-                            }
-                    }
+                } else if viewStore.isNeededAutomaticPaginationOnAppear {
+                    loader()
+                        .onAppear {
+                            viewStore.send(.onAppear)
+                        }
                 }
             }
         }

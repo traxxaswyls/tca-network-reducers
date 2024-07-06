@@ -27,9 +27,18 @@ public struct IDPaginationState<Element, ID>: Equatable, Codable where Element: 
 
     // MARK: - Initializers
 
-    public init(id: ID, pageSize: Int) {
+    public init(
+        id: ID,
+        pageSize: Int,
+        initialPaginationPolicy: PaginationState<Element>.InitialPaginationPolicy = .onAppear,
+        isNeededAutomaticPaginationOnAppear: Bool = true
+    ) {
         self.id = id
-        self.pagination = .init(pageSize: pageSize)
+        self.pagination = .init(
+            pageSize: pageSize,
+            initialPaginationPolicy: initialPaginationPolicy,
+            isNeededAutomaticPaginationOnAppear: isNeededAutomaticPaginationOnAppear
+        )
     }
 
     // MARK: - DynamicMemberLookup
