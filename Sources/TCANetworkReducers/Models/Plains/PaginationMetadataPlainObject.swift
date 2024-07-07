@@ -22,6 +22,7 @@ public struct PaginationMetadataPlainObject: Equatable, Codable {
         if let _hasMore {
             return _hasMore
         } else {
+            guard perPage > 0 else { return false }
             let totalPages = ceil(Double(totalCount) / Double(perPage))
             return currentPage < Int(totalPages)
         }
