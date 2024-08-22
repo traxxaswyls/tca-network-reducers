@@ -16,7 +16,7 @@ public protocol PaginatedResponse: Equatable {
     // MARK: - AssociatedTypes
     
     associatedtype Element: Equatable
-    associatedtype Metadata: Decodable & Equatable
+    associatedtype Metadata: PaginationMetadata
     
     // MARK: - Properties
     

@@ -11,7 +11,7 @@ import ObjectMapper
 
 // MARK: - PaginationMetadataPlainObject
 
-public struct PaginationMetadataPlainObject: Equatable, Codable {
+public struct PaginationMetadataPlainObject: PaginationMetadata {
 
     // MARK: - Properties
 
@@ -25,7 +25,7 @@ public struct PaginationMetadataPlainObject: Equatable, Codable {
         } else {
             guard perPage > 0 else { return false }
             let totalPages = ceil(Double(totalCount) / Double(perPage))
-            return currentPage < Int(totalPages)
+            return currentPage < Int(totalPages) || pageCount == currentPage
         }
     }
 
@@ -57,6 +57,15 @@ extension PaginationMetadataPlainObject {
         self.perPage = perPage
         self.totalCount = totalObjectCount
         self._nextCursor = nil
+    }
+    
+    public init(perPage: Int) {
+        self.init(
+            totalObjectCount: 0,
+            pageCount: 0,
+            currentPage: 0,
+            perPage: perPage
+        )
     }
     
     public init(

@@ -11,7 +11,7 @@ import ObjectMapper
 
 // MARK: - PaginatedResponsePlainObject
 
-public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable, DefaultPaginatedResponse {
+public struct PaginatedResponsePlainObject<Plain: Equatable>: Equatable, PaginatedResponse {
 
     // MARK: - CodingKeys
 

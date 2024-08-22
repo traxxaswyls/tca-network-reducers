@@ -12,7 +12,7 @@ import Combine
 
 // MARK: - PaginationReducer
 
-public struct PaginationReducer<Response: DefaultPaginatedResponse, ErrorType: Error & Equatable>: Reducer {
+public struct PaginationReducer<Response: PaginatedResponse, ErrorType: Error & Equatable>: Reducer {
     
     // MARK: - Aliases
     
@@ -57,7 +57,7 @@ public struct PaginationReducer<Response: DefaultPaginatedResponse, ErrorType: E
     // MARK: - ReducerProtocol
     
     public func reduce(
-        into state: inout PaginationState<Response.Element>, action: PaginationAction<Response, ErrorType>
+        into state: inout PaginationState<Response.Element, Response.Metadata>, action: PaginationAction<Response, ErrorType>
     ) -> Effect<PaginationAction<Response, ErrorType>> {
         switch action {
         case .onAppear:
@@ -66,7 +66,7 @@ public struct PaginationReducer<Response: DefaultPaginatedResponse, ErrorType: E
             }
             state.isInitialized = true
         case .reset:
-            state.currentPagination = .new(pageSize: state.pageSize)
+            state.currentPagination = .init(perPage: state.pageSize)
             state.page = 0
             state.requestStatus = .none
             state.results = []
@@ -91,9 +91,10 @@ public struct PaginationReducer<Response: DefaultPaginatedResponse, ErrorType: E
         case .response(.success(let paginatedElement)):
             state.isNeededAutomaticButtonLoading = false
             state.results.append(contentsOf: paginatedElement.array)
+            state.currentPagination = paginatedElement.pagination
             state.page += 1
             state.requestStatus = .done
-            if state.results.count >= state.total {
+            if !state.currentPagination.hasMore {
                 return .send(.allElementsFetched)
             }
         case .response(.failure):

@@ -16,7 +16,7 @@ import Foundation
 /// Basically, `PaginationState` is a type that describes the data
 /// `Pagination` feature needs to perform its logic and render its UI.
 @dynamicMemberLookup
-public struct PaginationState<Element>: Equatable where Element: Equatable {
+public struct PaginationState<Element, Metadata: PaginationMetadata>: Equatable where Element: Equatable {
 
     // MARK: - InitialPaginationPolicy
     
@@ -48,7 +48,7 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
     
     public var isInitialized = false
     public var initialPaginationPolicy: InitialPaginationPolicy = .onAppear
-    public var currentPagination: PaginationMetadataPlainObject
+    public var currentPagination: Metadata
 
     /// Size of pages.
     public var pageSize: Int
@@ -58,7 +58,7 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
 
     /// Total number of results.
     public var total: Int {
-        currentPagination.totalCount
+        results.count
     }
 
     /// The requestStatus defines the current state of the pagination.  If .None, no pages have fetched.
@@ -89,12 +89,7 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
         self.initialPaginationPolicy = initialPaginationPolicy
         self.pageSize = pageSize
         self.isNeededAutomaticPaginationOnAppear = isNeededAutomaticPaginationOnAppear
-        self.currentPagination = PaginationMetadataPlainObject(
-            totalObjectCount: 0,
-            pageCount: 0,
-            currentPage: 0,
-            perPage: pageSize
-        )
+        self.currentPagination = .init(perPage: pageSize)
     }
 
     // MARK: - DynamicMemberLookup

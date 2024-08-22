@@ -21,7 +21,7 @@ public struct PaginationView<Response: PaginatedResponse, ErrorType: Error & Equ
     // MARK: - Aliases
 
     /// Favorite module Store alias
-    public typealias PaginationStore = Store<PaginationState<Response.Element>, PaginationAction<Response, ErrorType>>
+    public typealias PaginationStore = Store<PaginationState<Response.Element, Response.Metadata>, PaginationAction<Response, ErrorType>>
 
     // MARK: - Properties
 

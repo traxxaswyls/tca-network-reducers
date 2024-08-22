@@ -11,7 +11,7 @@ import Combine
 
 // MARK: - IDPaginationReducer
 
-public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType: Error & Equatable, ID: Equatable>: Reducer {
+public struct IDPaginationReducer<Response: PaginatedResponse, ErrorType: Error & Equatable, ID: Equatable>: Reducer {
     
     // MARK: - Aliases
 
@@ -56,7 +56,7 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
     // MARK: - Reducer
     
     public func reduce(
-        into state: inout IDPaginationState<Response.Element, ID>, action: PaginationAction<Response, ErrorType>
+        into state: inout IDPaginationState<Response.Element, Response.Metadata, ID>, action: PaginationAction<Response, ErrorType>
     ) -> Effect<PaginationAction<Response, ErrorType>> {
         switch action {
         case .onAppear:
@@ -65,7 +65,7 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
             }
             state.isInitialized = true
         case .reset:
-            state.currentPagination = .new(pageSize: state.pageSize)
+            state.currentPagination = .init(perPage: state.pageSize)
             state.page = 0
             state.requestStatus = .none
             state.results = []
@@ -92,7 +92,7 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
             state.currentPagination = paginatedElement.pagination
             state.page += 1
             state.requestStatus = .done
-            if state.results.count >= paginatedElement.pagination.totalCount {
+            if !state.currentPagination.hasMore {
                 return .send(.allElementsFetched)
             }
         case .response(.failure):
