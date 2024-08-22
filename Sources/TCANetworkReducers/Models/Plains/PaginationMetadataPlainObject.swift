@@ -15,6 +15,20 @@ public struct PaginationMetadataPlainObject: Equatable, Codable {
 
     // MARK: - Properties
 
+    public let _nextCursor: String?
+    private var _hasMore: Bool?
+    
+    /// True if pagination has more objects
+    public var hasMore: Bool {
+        if let _hasMore {
+            return _hasMore
+        } else {
+            guard perPage > 0 else { return false }
+            let totalPages = ceil(Double(totalCount) / Double(perPage))
+            return currentPage < Int(totalPages)
+        }
+    }
+
     /// Total object count
     public let totalCount: Int
 
@@ -42,6 +56,29 @@ extension PaginationMetadataPlainObject {
         self.pageCount = pageCount
         self.perPage = perPage
         self.totalCount = totalObjectCount
+        self._nextCursor = nil
+    }
+    
+    public init(
+        perPage: Int,
+        hasMore: Bool,
+        _nextCursor: String? = nil
+    ) {
+        self.pageCount = -1
+        self.totalCount = -1
+        self.currentPage = -1
+        self.perPage = perPage
+        self._hasMore = hasMore
+        self._nextCursor = _nextCursor
+    }
+    
+    public static func new(pageSize: Int) -> PaginationMetadataPlainObject {
+        PaginationMetadataPlainObject(
+            totalObjectCount: 0,
+            pageCount: 0,
+            currentPage: 0,
+            perPage: pageSize
+        )
     }
 }
 

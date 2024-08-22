@@ -9,19 +9,24 @@
 import ComposableArchitecture
 import SwiftUI
 
-// MARK: - PaginationView
+// MARK: - IDPaginationView
 
 /// A visual representation of `Pagination` module.
 /// Here we define the view that displays the feature.
 /// It holds onto a `Store<PaginationState, PaginationAction>` so that it can observe
 /// all changes to the state and re-render, and we can send all user actions
 /// to the store so that state changes.
-public struct PaginationView<Response: PaginatedResponse, ErrorType: Error & Equatable, Loader: View>: View {
+public struct IDPaginationView<
+    Element: Equatable & Codable,
+    ID: Equatable & Codable,
+    ErrorType: Error & Equatable,
+    Loader: View
+>: View {
 
     // MARK: - Aliases
 
     /// Favorite module Store alias
-    public typealias PaginationStore = Store<PaginationState<Response.Element>, PaginationAction<Response, ErrorType>>
+    public typealias PaginationStore = Store<IDPaginationState<Element, ID>, PaginationAction<Element, ErrorType>>
 
     // MARK: - Properties
 
@@ -53,7 +58,7 @@ public struct PaginationView<Response: PaginatedResponse, ErrorType: Error & Equ
 
     public var body: some View {
         WithViewStore(store) { viewStore in
-            if !viewStore.reachedLastPage {
+            if !viewStore.pagination.reachedLastPage {
                 if isLoadingButton && !viewStore.isNeededAutomaticButtonLoading {
                     Button {
                         viewStore.send(.paginate)

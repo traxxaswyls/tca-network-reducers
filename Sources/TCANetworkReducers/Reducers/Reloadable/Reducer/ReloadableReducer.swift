@@ -14,59 +14,90 @@ import Combine
 
 public struct RelodableReducer<Data: Equatable, ErrorType: Error & Equatable>: Reducer {
     
+    // MARK: - Aliases
+    
+    public typealias PublisherObtain<D> = () -> AnyPublisher<D, ErrorType>
+    public typealias AsyncObtain<D> = () async throws -> D
+    
+    // MARK: - Operation
+    
+    public enum Operation<D> {
+        case publisher(PublisherObtain<D>)
+        case run(AsyncObtain<D>)
+    }
+    
     // MARK: - Properties
     
     /// Main queue scheduler instance
     @Dependency(\.mainQueueScheduler) var mainQueue: AnySchedulerOf<DispatchQueue>
     
     /// Closure for loading target resource
-    public let obtain: () -> AnyPublisher<Data, ErrorType>
+    public let obtain: Operation<Data>
     
     /// Closure for cache obtating
-    public let cache: (() -> AnyPublisher<Data?, ErrorType>)?
+    public let cache: Operation<Data?>?
     
     // MARK: - Initializers
     
     public init(
-        obtain: @escaping () -> AnyPublisher<Data, ErrorType>,
-        cache: (() -> AnyPublisher<Data?, ErrorType>)? = nil
+        obtain: @escaping PublisherObtain<Data>,
+        cache: PublisherObtain<Data?>? = nil
     ) {
-        self.obtain = obtain
-        self.cache = cache
+        self.obtain = .publisher(obtain)
+        self.cache = cache.map { .publisher($0) }
     }
     
-    // MARK: - Reducer
+    public init(
+        obtain: @escaping AsyncObtain<Data>,
+        cache: AsyncObtain<Data?>? = nil
+    ) {
+        self.obtain = .run(obtain)
+        self.cache = cache.map { .run($0) }
+    }
+    
+    // MARK: - Static
+    
+    public static func publisher(
+        obtain: @escaping PublisherObtain<Data>,
+        cache: PublisherObtain<Data?>? = nil
+    ) -> Self {
+        RelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+    
+    public static func run(
+        obtain: @escaping AsyncObtain<Data>,
+        cache: AsyncObtain<Data?>? = nil
+    ) -> Self {
+        RelodableReducer(
+            obtain: obtain,
+            cache: cache
+        )
+    }
+    
+    // MARK: - ReducerProtocol
     
     public func reduce(
-       into state: inout ReloadableState<Data, ErrorType>, action: ReloadableAction<Data, ErrorType>
+        into state: inout ReloadableState<Data, ErrorType>, action: ReloadableAction<Data, ErrorType>
     ) -> Effect<ReloadableAction<Data, ErrorType>> {
         switch action {
         case .load:
             state.status = .loading
             var actions: [Effect<ReloadableAction<Data, ErrorType>>] = []
-            if let cache = cache {
-                actions.append(cache()
-                    .compactMap { $0 }
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.cacheResponse)
-                )
-            }
+            actions.append(convertedCache())
             actions.append(.send(.loadingInProgress(true)))
-            actions.append(
-                obtain()
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.response)
-            )
+            actions.append(convertedObtain())
             return .merge(actions)
         case .reload:
             state.status = .reloading
             return .merge(
                 .send(.loadingInProgress(true)),
-                obtain()
-                    .catchToEffect(ReloadableAction<Data, ErrorType>.response)
+                convertedObtain()
             )
         case .cacheResponse(.success(let data)):
-            if state.status == .loading {
-                state.data = data
-            }
+            state.data = data
         case .alertDismissed:
             state.alert = nil
         case .response(.success(let data)):
@@ -77,8 +108,9 @@ public struct RelodableReducer<Data: Equatable, ErrorType: Error & Equatable>: R
             switch state.alertMode {
             case .onFailure(shoudDisplayOnReload: true),
                  .onFailure(shoudDisplayOnReload: false) where state.status != .reloading:
-                state.alert = .init(
-                    title: TextState(error.localizedDescription),
+                state.alert = AlertState(
+                    title: TextState("Error"),
+                    message: TextState(error.localizedDescription),
                     dismissButton: .default(TextState("Ok"))
                 )
             default:
@@ -105,5 +137,43 @@ public struct RelodableReducer<Data: Equatable, ErrorType: Error & Equatable>: R
             return .none
         }
         return .none
+    }
+    
+    private func convertedObtain() -> Effect<ReloadableAction<Data, ErrorType>> {
+        switch obtain {
+        case .publisher(let obtain):
+            return obtain().catchToEffect(ReloadableAction<Data, ErrorType>.response)
+        case .run(let act):
+            return .run { send in
+                do {
+                    let data = try await act()
+                    await send(.response(.success(data)))
+                } catch let error as ErrorType {
+                    await send(.response(.failure(error)))
+                } catch {
+                    assertionFailure("Unknown error type `\(type(of: error))`, expected `\(ErrorType.Type.self)`")
+                }
+            }
+        }
+    }
+    
+    private func convertedCache() -> Effect<ReloadableAction<Data, ErrorType>> {
+        switch cache {
+        case .publisher(let obtain):
+            return obtain().catchToEffect(ReloadableAction<Data, ErrorType>.cacheResponse)
+        case .run(let act):
+            return .run { send in
+                do {
+                    let data = try await act()
+                    await send(.cacheResponse(.success(data)))
+                } catch let error as ErrorType {
+                    await send(.cacheResponse(.failure(error)))
+                } catch {
+                    assertionFailure("Unknown error type `\(type(of: error))`, expected `\(ErrorType.Type.self)`")
+                }
+            }
+        default:
+            return .none
+        }
     }
 }

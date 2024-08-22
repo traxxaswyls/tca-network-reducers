@@ -41,4 +41,7 @@ public enum PaginationAction<Response: PaginatedResponse, ErrorType: Error & Equ
     /// The action is called when pagination helper view is appeared.
     /// After that, the fetch closure from environment is called.
     case paginate
+    
+    /// General action that calls when view appears
+    case onAppear
 }

@@ -18,6 +18,14 @@ import Foundation
 @dynamicMemberLookup
 public struct PaginationState<Element>: Equatable where Element: Equatable {
 
+    // MARK: - InitialPaginationPolicy
+    
+    public enum InitialPaginationPolicy: Equatable, Codable {
+        
+        case onAppear
+        case onDidLoad
+    }
+
     // MARK: - RequestStatus
 
     /// RequestStatus for Pagination
@@ -37,6 +45,10 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
     }
 
     // MARK: - Properties
+    
+    public var isInitialized = false
+    public var initialPaginationPolicy: InitialPaginationPolicy = .onAppear
+    public var currentPagination: PaginationMetadataPlainObject
 
     /// Size of pages.
     public var pageSize: Int
@@ -45,7 +57,9 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
     public var page = 0
 
     /// Total number of results.
-    public var total = 0
+    public var total: Int {
+        currentPagination.totalCount
+    }
 
     /// The requestStatus defines the current state of the pagination.  If .None, no pages have fetched.
     /// If .InProgress, incoming `fetchNextPage()` calls are ignored.
@@ -56,19 +70,31 @@ public struct PaginationState<Element>: Equatable where Element: Equatable {
         if requestStatus == .none || requestStatus == .inProgress && total == 0 {
             return false
         }
-        let totalPages = ceil(Double(total) / Double(pageSize))
-        return page >= Int(totalPages)
+        return !currentPagination.hasMore
     }
 
     /// All results in the order they were received.
     public var results: [Element] = []
 
     public var isNeededAutomaticButtonLoading = true
+    public var isNeededAutomaticPaginationOnAppear = true
     
     // MARK: - Initializers
     
-    public init(pageSize: Int) {
+    public init(
+        pageSize: Int,
+        initialPaginationPolicy: InitialPaginationPolicy = .onAppear,
+        isNeededAutomaticPaginationOnAppear: Bool = true
+    ) {
+        self.initialPaginationPolicy = initialPaginationPolicy
         self.pageSize = pageSize
+        self.isNeededAutomaticPaginationOnAppear = isNeededAutomaticPaginationOnAppear
+        self.currentPagination = PaginationMetadataPlainObject(
+            totalObjectCount: 0,
+            pageCount: 0,
+            currentPage: 0,
+            perPage: pageSize
+        )
     }
 
     // MARK: - DynamicMemberLookup
