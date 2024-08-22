@@ -11,3 +11,5 @@ import Foundation
 // MARK: - Aliases
 
 public typealias Paginated<T: Equatable> = PaginatedResponsePlainObject<T>
+public typealias DefaultPaginationState<Element: Equatable> = PaginationState<PaginatedResponsePlainObject<Element>>
+public typealias DefaultIDPaginationState<Element: Equatable, ID: Equatable> = IDPaginationState<PaginatedResponsePlainObject<Element>, ID>

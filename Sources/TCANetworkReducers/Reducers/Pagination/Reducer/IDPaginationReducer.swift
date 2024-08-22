@@ -56,7 +56,7 @@ public struct IDPaginationReducer<Response: PaginatedResponse, ErrorType: Error 
     // MARK: - Reducer
     
     public func reduce(
-        into state: inout IDPaginationState<Response.Element, Response.Metadata, ID>, action: PaginationAction<Response, ErrorType>
+        into state: inout IDPaginationState<Response, ID>, action: PaginationAction<Response, ErrorType>
     ) -> Effect<PaginationAction<Response, ErrorType>> {
         switch action {
         case .onAppear:

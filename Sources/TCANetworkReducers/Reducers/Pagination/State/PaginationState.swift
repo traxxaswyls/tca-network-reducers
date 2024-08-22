@@ -16,7 +16,7 @@ import Foundation
 /// Basically, `PaginationState` is a type that describes the data
 /// `Pagination` feature needs to perform its logic and render its UI.
 @dynamicMemberLookup
-public struct PaginationState<Element, Metadata: PaginationMetadata>: Equatable where Element: Equatable {
+public struct PaginationState<Response: PaginatedResponse>: Equatable {
 
     // MARK: - InitialPaginationPolicy
     
@@ -48,7 +48,7 @@ public struct PaginationState<Element, Metadata: PaginationMetadata>: Equatable 
     
     public var isInitialized = false
     public var initialPaginationPolicy: InitialPaginationPolicy = .onAppear
-    public var currentPagination: Metadata
+    public var currentPagination: Response.Metadata
 
     /// Size of pages.
     public var pageSize: Int
@@ -74,7 +74,7 @@ public struct PaginationState<Element, Metadata: PaginationMetadata>: Equatable 
     }
 
     /// All results in the order they were received.
-    public var results: [Element] = []
+    public var results: [Response.Element] = []
 
     public var isNeededAutomaticButtonLoading = true
     public var isNeededAutomaticPaginationOnAppear = true
@@ -94,7 +94,7 @@ public struct PaginationState<Element, Metadata: PaginationMetadata>: Equatable 
 
     // MARK: - DynamicMemberLookup
 
-    public subscript<Dependency>(dynamicMember keyPath: KeyPath<[Element], Dependency>) -> Dependency {
+    public subscript<Dependency>(dynamicMember keyPath: KeyPath<[Response.Element], Dependency>) -> Dependency {
         results[keyPath: keyPath]
     }
 }
