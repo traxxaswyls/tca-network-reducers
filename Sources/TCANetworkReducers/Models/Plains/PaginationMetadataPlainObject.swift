@@ -90,5 +90,7 @@ extension PaginationMetadataPlainObject: ImmutableMappable {
         pageCount = try map.value("pageCount")
         currentPage = try map.value("currentPage")
         perPage = try map.value("perPage")
+        _nextCursor = nil
+        _hasMore = nil
     }
 }

@@ -15,8 +15,8 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
     
     // MARK: - Aliases
 
-    public typealias PublisherObtain = (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Paginated<Element>, ErrorType>
-    public typealias AsyncObtain = (_ id: ID, _ page: Int, _ pageSize: Int) async throws -> PaginatedResponsePlainObject<Element>
+    public typealias PublisherObtain = (_ id: ID, _ page: Int, _ pageSize: Int) -> AnyPublisher<Response, ErrorType>
+    public typealias AsyncObtain = (_ id: ID, _ page: Int, _ pageSize: Int) async throws -> Response
 
     // MARK: - Operation
     
@@ -74,7 +74,7 @@ public struct IDPaginationReducer<Response: DefaultPaginatedResponse, ErrorType:
             switch fetchHandler {
             case .publisher(let publisherObtain):
                 return publisherObtain(state.id, state.page + 1, state.pageSize)
-                    .catchToEffect(PaginationAction<Element, ErrorType>.response)
+                    .catchToEffect(PaginationAction<Response, ErrorType>.response)
             case .run(let asyncObtain):
                 return .run { [state = state] send in
                     do {
